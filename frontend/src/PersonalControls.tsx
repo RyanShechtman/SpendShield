@@ -10,7 +10,7 @@ import {
   UserRound,
   Wallet,
 } from "lucide-react";
-import { api, post, money } from "./api";
+import { api, post, money, hostedMode } from "./api";
 import type { Dashboard, Transaction } from "./types";
 
 export function Onboarding({
@@ -68,7 +68,10 @@ export function Onboarding({
             ))}
           </ol>
           <small>
-            Stored on this computer. Optional Gemini insights. USD only.
+            {hostedMode
+              ? "Saved to your private account."
+              : "Stored on this computer."}{" "}
+            Optional Gemini insights. USD only.
           </small>
         </aside>
         <section className="setup-form">
@@ -331,6 +334,26 @@ export function ProfileSettings({
           </p>
         )}
       </form>
+      {hostedMode && (
+        <button
+          className="secondary full"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            setError("");
+            try {
+              await post("/auth/logout");
+              window.dispatchEvent(new Event("spendshield:signed-out"));
+            } catch {
+              setError("Could not sign out. Please try again.");
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          Sign out
+        </button>
+      )}
       <div className="settings-links">
         <button onClick={onBudget}>
           <Wallet size={18} />
@@ -365,10 +388,21 @@ export function ProfileSettings({
       </div>
       <div className="setup-detail">
         <p>
-          <strong>One private space on this computer.</strong> This version
-          saves one person's profile locally. It does not connect to a bank,
-          send payments or create an online account. Anyone with access to this
-          running app can view this profile.
+          {hostedMode ? (
+            <>
+              Your records are saved to your signed-in account on the server.
+              Other visitors have separate profiles. Gemini receives relevant
+              context only when you opt in and request AI analysis.
+            </>
+          ) : (
+            <>
+              <strong>One private space on this computer.</strong> This version
+              saves one person's profile locally. Anyone with access to this
+              running app can view this profile.
+            </>
+          )}{" "}
+          SpendShield does not connect to a bank or move money. Keep a
+          downloaded backup of important records.
         </p>
       </div>
     </>

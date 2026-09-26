@@ -3571,3 +3571,12 @@ footer {
 .goal-card p {
   color: #bfd1bd;
 }
+
+.sign-in-shell { min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: #f4f7f3; }
+.sign-in-card { width: min(100%, 520px); padding: clamp(24px, 5vw, 48px); }
+.sign-in-card .brand { margin-bottom: 40px; }
+.sign-in-card h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.15; margin: 16px 0; }
+.sign-in-card p { line-height: 1.65; }
+.sign-in-card .primary { margin-top: 24px; text-decoration: none; display: flex; justify-content: center; gap: 10px; }
+.sign-in-detail { font-size: 13px; color: #52665c; }
+.sign-in-card a.primary { background: #194d40; color: #fff; padding: 14px 18px; border-radius: 10px; font-weight: 600; align-items: center; } .sign-in-card a.primary:hover { background: #103c31; }

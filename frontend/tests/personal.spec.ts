@@ -424,3 +424,49 @@ test("purchase results and actions fit a narrow phone", async ({ page }) => {
     fullPage: true,
   });
 });
+
+test("hosted sign-in screen explains privacy without requesting a key", async ({
+  page,
+}) => {
+  await page.route("**/api/auth/session", (route) =>
+    route.fulfill({ json: { hosted: true, authenticated: false } }),
+  );
+  await page.goto("/");
+  await expect(
+    page.getByRole("link", { name: "Continue with GitHub" }),
+  ).toHaveAttribute("href", "/auth/login");
+  await expect(
+    page.getByText("You never need to enter an API key.", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Looking ahead, Maya." }),
+  ).not.toBeVisible();
+  await page.setViewportSize({ width: 320, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  await page.screenshot({
+    path: "test-results/hosted-sign-in.png",
+    fullPage: true,
+  });
+});
+
+test("hosted sign out removes the dashboard", async ({ page }) => {
+  await page.route("**/api/auth/session", (route) =>
+    route.fulfill({ json: { hosted: true, authenticated: true } }),
+  );
+  await setup(page);
+  await expect(
+    page.getByText("Private account", { exact: true }).first(),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "Continue with GitHub" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Looking ahead, Maya." }),
+  ).not.toBeVisible();
+});

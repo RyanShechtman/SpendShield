@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
 
-from . import engine, store
+from . import engine, store, hosting
 from .workflows import router as workflow_router, export_data
 from .csv_import import parse_csv
 from .models import (
@@ -42,12 +42,15 @@ catalog = DemoCatalogProvider()
 
 @asynccontextmanager
 async def lifespan(app):
-    store.init()
+    hosting.initialize()
+    if not hosting.enabled():
+        store.init()
     yield
 
 
 app = FastAPI(title="SpendShield", version="2.0.0", lifespan=lifespan)
 app.include_router(workflow_router)
+app.include_router(hosting.router)
 
 
 @app.exception_handler(ValueError)
@@ -69,6 +72,8 @@ async def unexpected_error(request, exc):
 
 @app.middleware("http")
 async def local_boundary(request, call_next):
+    if hosting.enabled():
+        return await hosting.boundary(request, call_next)
     # Single-user local app. Refuse cross-origin mutations and DNS rebinding.
     host = request.url.hostname
     if host not in {"localhost", "127.0.0.1", "::1", "testserver"}:
@@ -727,3 +732,5 @@ def money_rescued():
 frontend = ROOT / "frontend/dist"
 if frontend.exists():
     app.mount("/", StaticFiles(directory=frontend, html=True), name="frontend")
+
+app.add_middleware(hosting.BodyLimit)

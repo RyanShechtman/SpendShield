@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: spendshield
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements-lock.txt && npm install --prefix /tmp/spendshield-build pnpm@11.0.0 && cd frontend && /tmp/spendshield-build/node_modules/.bin/pnpm install --frozen-lockfile && /tmp/spendshield-build/node_modules/.bin/pnpm run build
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT --workers 1 --no-access-log
+    healthCheckPath: /api/health
+    disk:
+      name: spendshield-data
+      mountPath: /var/data/spendshield
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+      - key: NODE_VERSION
+        value: 24.14.0
+      - key: SPENDSHIELD_MODE
+        value: hosted
+      - key: SPENDSHIELD_DATA_DIR
+        value: /var/data/spendshield
+      - key: PUBLIC_ORIGIN
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AI_USER_DAILY_LIMIT
+        value: "30"
+      - key: AI_GLOBAL_DAILY_LIMIT
+        value: "300"

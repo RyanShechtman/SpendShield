@@ -1,17 +1,29 @@
+export let hostedMode = false;
+export function setHostedMode(value: boolean) {
+  hostedMode = value;
+}
+
 export async function api<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
   const response = await fetch("/api" + path, {
     ...options,
+    credentials: "same-origin",
     headers:
       options.body instanceof FormData
-        ? options.headers
-        : { "Content-Type": "application/json", ...options.headers },
+        ? { "X-SpendShield": "1", ...options.headers }
+        : {
+            "Content-Type": "application/json",
+            "X-SpendShield": "1",
+            ...options.headers,
+          },
     signal: options.signal
       ? AbortSignal.any([options.signal, AbortSignal.timeout(120000)])
       : AbortSignal.timeout(120000),
   });
+  if (response.status === 401)
+    window.dispatchEvent(new Event("spendshield:signed-out"));
   let result;
   try {
     result = await response.json();

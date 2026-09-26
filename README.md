@@ -2,6 +2,10 @@
 
 SpendShield is a local, single-person spending planner. Set your own name, budget and savings goal, record real transactions, and understand a purchase before you commit to it. New installations start empty; no sample balances are mixed into your finances.
 
+## Browser hosting with Gemini
+
+A hosted mode is now included with GitHub sign-in, separate account databases, secure session cookies, and server-only Gemini credentials. GitHub Pages serves a redirect to the complete app on Render. See [HOSTING.md](HOSTING.md) for setup, costs, required private settings, and verification. No deployment has been performed yet. The local mode below remains available.
+
 ## Start using it
 
 1. Open the app and complete the three short setup steps: preferred name, monthly discretionary budget and one savings goal. A budget or monthly savings contribution can be left blank and added later.
@@ -107,4 +111,6 @@ Browser tests run against a separate `data/e2e.sqlite3` database on port 8001, w
 
 In this managed environment, use a fresh writable `--basetemp` under the workspace and `-p no:cacheprovider` if pytest's default temporary directory is inaccessible. The sandbox can block Playwright's process-tree teardown; an explicitly started isolated test server can be reused and stopped afterward.
 
-Latest verification (September 26, 2026): 45 backend tests and 9 browser journeys passed; Ruff, TypeScript, production build and ESLint passed. Live Gemini image understanding succeeded with gemini-3.1-flash-lite using a synthetic shopping image and synthetic context. Browser AI category review uses mocked responses; no personal financial records were used for live verification.
+Latest verification (September 26, 2026): 52 backend tests and 11 browser journeys passed; Ruff, TypeScript, production build and ESLint passed. Live Gemini image understanding succeeded with gemini-3.1-flash-lite using a synthetic shopping image and synthetic context. Browser AI category review uses mocked responses; no personal financial records were used for live verification.
+
+Hosted authentication tests additionally cover account isolation, session revocation, OAuth state/PKCE and replay prevention, request limits, upload limits, and fail-closed configuration. Provider sign-in uses a mocked identity response in automated tests; the real OAuth callback and Render deployment remain unverified until hosting is configured.

@@ -10,7 +10,7 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
-import { api, money, post } from "./api";
+import { api, money, post, hostedMode } from "./api";
 import type { Purchase, Impact, Scan } from "./types";
 
 const errorText = (e: unknown) =>
@@ -803,7 +803,11 @@ export function ProductGuide() {
               <span>{String(i + 1).padStart(2, "0")}</span>
               {title}
             </summary>
-            <p>{body}</p>
+            <p>
+              {hostedMode && i === 11
+                ? "Your signed-in account has one USD savings goal. Records are stored on the server, separate from other accounts. There is no bank sync, payment transfer or automatic cancellation. CSV refunds are unsupported. Goal dates are illustrative estimates. Sign out in Settings when using a shared device."
+                : body}
+            </p>
           </details>
         ))}
       </div>

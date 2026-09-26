@@ -57,6 +57,10 @@ The discretionary budget covers Restaurants, Entertainment, Shopping, Gambling a
 
 Goal projections use the remaining goal amount, the monthly contribution and a 30-day month without investment returns. Purchase impact assumes money spent would otherwise contribute to the goal. These are illustrative projections based on recorded information.
 
-## Scope
+## Hosted accounts
+
+When deployed using HOSTING.md, visitors sign in with GitHub and records are stored separately per account on the server. Settings includes Sign out. Visitors need no API key; Gemini remains optional. The GitHub Pages entry link forwards to the complete hosted app. The hosting setup has been prepared but not deployed.
+
+## Local scope
 
 This is a complete local, single-person USD workflow with one active goal. It has no bank connection, online sign-in, payment transfer, automatic cancellation, automatic retailer monitoring or background push notification service. Keep the server bound to localhost. All summaries depend on the completeness of your entries.

@@ -2,15 +2,24 @@ import json
 import os
 import sqlite3
 from contextlib import contextmanager
+from contextvars import ContextVar
+import re
 from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+user_context = ContextVar("spendshield_user", default=None)
 
 
 @contextmanager
 def connection():
-    path = Path(os.getenv("SPENDSHIELD_DB", str(ROOT / "data/spendshield.sqlite3")))
+    if os.getenv("SPENDSHIELD_MODE") == "hosted":
+        user = user_context.get()
+        if not user or not re.fullmatch(r"[a-f0-9]{64}", user):
+            raise RuntimeError("An authenticated account is required for hosted storage.")
+        path = Path(os.environ["SPENDSHIELD_DATA_DIR"]) / "users" / f"{user}.sqlite3"
+    else:
+        path = Path(os.getenv("SPENDSHIELD_DB", str(ROOT / "data/spendshield.sqlite3")))
     path.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(path, timeout=10)
     db.row_factory = sqlite3.Row

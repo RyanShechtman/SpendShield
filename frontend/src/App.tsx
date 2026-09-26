@@ -36,7 +36,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { api, money, post } from "./api";
+import { api, money, post, hostedMode } from "./api";
 import {
   SavedChecks,
   PurchaseTools,
@@ -455,7 +455,7 @@ export default function App() {
             </button>
             <span className="privacy">
               <LockKeyhole size={13} />
-              Local storage
+              {hostedMode ? "Private account" : "Local storage"}
             </span>
             <button
               className="icon-button"
