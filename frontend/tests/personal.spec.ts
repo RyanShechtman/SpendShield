@@ -470,3 +470,184 @@ test("hosted sign out removes the dashboard", async ({ page }) => {
     page.getByRole("heading", { name: "Looking ahead, Maya." }),
   ).not.toBeVisible();
 });
+
+test("pay schedule guides budget and daily reviews cannot be repeated", async ({
+  page,
+  request,
+}) => {
+  await setup(page);
+  await page.getByRole("button", { name: "My Plan", exact: true }).click();
+  await page.getByLabel("Pay frequency").selectOption("biweekly");
+  await page.getByLabel("Take-home pay per payment (USD)").fill("1500");
+  await page.getByLabel("Monthly essentials and bills (USD)").fill("1800");
+  await page
+    .getByRole("button", { name: "Save pay plan", exact: true })
+    .click();
+  await expect(page.getByText("$3,250.00", { exact: true })).toBeVisible();
+  await page
+    .getByRole("button", {
+      name: "Use $1,350.00 as my monthly budget",
+      exact: true,
+    })
+    .click();
+  expect((await (await request.get("/api/dashboard")).json()).budget).toBe(
+    1350,
+  );
+  expect((await (await request.get("/api/dashboard")).json()).income).toBe(0);
+  await page.getByLabel("Your challenge name").fill("Make time to pause");
+  await page
+    .getByRole("button", { name: "Start my challenge", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Record today’s review" }),
+  ).toBeDisabled();
+  await page.locator("#habit-challenges").getByRole("checkbox").nth(0).check();
+  await page.locator("#habit-challenges").getByRole("checkbox").nth(1).check();
+  await page.getByRole("button", { name: "Record today’s review" }).click();
+  await expect(
+    page.getByText("1 of 7 daily reviews completed", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Record today’s review" }),
+  ).toHaveCount(0);
+  await page.setViewportSize({ width: 320, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  await page.screenshot({
+    path: "test-results/my-plan-mobile.png",
+    fullPage: true,
+  });
+});
+
+test("achievement collection offers distinct challenges without replacing the plan", async ({
+  page,
+}) => {
+  await setup(page);
+  await page.getByRole("button", { name: "My Plan", exact: true }).click();
+  await page.getByRole("button", { name: /Achievements/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Your achievements" }),
+  ).toBeVisible();
+  await expect(page.locator(".achievement-section article")).toHaveCount(20);
+  await page.getByLabel("Show badges").selectOption("earned");
+  await expect(page.getByText(/No badges yet/)).toBeVisible();
+  await page.getByLabel("Show badges").selectOption("all");
+  await page
+    .locator("article")
+    .filter({
+      has: page.getByRole("heading", { name: "Pause planner", exact: true }),
+    })
+    .getByRole("button")
+    .click();
+  await expect(page.getByLabel("Challenge focus")).toHaveValue("pause");
+  await page
+    .getByRole("button", { name: "Start my challenge", exact: true })
+    .click();
+  await page.locator("#habit-challenges").getByRole("checkbox").nth(0).check();
+  await page.locator("#habit-challenges").getByRole("checkbox").nth(1).check();
+  await page.getByRole("button", { name: "Record today’s review" }).click();
+  await page.getByRole("button", { name: /Achievements/ }).click();
+  await page.getByLabel("Show badges").selectOption("earned");
+  await expect(page.locator(".achievement-section article")).toHaveCount(1);
+  await expect(
+    page.getByRole("heading", { name: "First reflection" }),
+  ).toBeVisible();
+  await page.getByLabel("Show badges").selectOption("all");
+  await page.setViewportSize({ width: 320, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  await page.screenshot({
+    path: "test-results/achievements-mobile.png",
+    fullPage: true,
+  });
+});
+
+test("color themes persist and remain usable on mobile", async ({ page }) => {
+  await setup(page);
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  for (const [name, id] of [
+    ["Ocean", "ocean"],
+    ["Iris", "iris"],
+    ["Sunset", "sunset"],
+    ["Garden", "garden"],
+  ]) {
+    await page.getByRole("button", { name: new RegExp(name) }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", id);
+    await expect(
+      page.getByRole("button", { name: new RegExp(name) }),
+    ).toHaveAttribute("aria-pressed", "true");
+  }
+  await page.getByRole("button", { name: /Iris/ }).click();
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page.screenshot({
+    path: "test-results/theme-iris.png",
+    fullPage: true,
+  });
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "iris");
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: /Sunset/ }).click();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  await page.screenshot({
+    path: "test-results/theme-picker-mobile.png",
+    fullPage: true,
+  });
+});
+
+test("theme rewards require earned reviews and persist after unlocking", async ({
+  page,
+  request,
+}) => {
+  await setup(page);
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Bloom/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Aurora/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Starlight/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /Garden/ })).toBeEnabled();
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  expect(
+    (
+      await request.post("/api/planning/challenge", {
+        data: { title: "Review my choices", days: 7 },
+      })
+    ).ok(),
+  ).toBeTruthy();
+  expect((await request.post("/api/planning/check-in")).ok()).toBeTruthy();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(page.getByRole("button", { name: /Bloom/ })).toBeEnabled();
+  await expect(page.getByRole("button", { name: /Aurora/ })).toBeDisabled();
+  await page.getByRole("button", { name: /Bloom/ }).click();
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "bloom");
+  await page.evaluate(() =>
+    localStorage.setItem("spendshield-theme", "starlight"),
+  );
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Looking ahead, Maya." }),
+  ).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "garden");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.getByRole("button", { name: /Bloom/ }).click();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBeTruthy();
+  await page.screenshot({
+    path: "test-results/theme-rewards-mobile.png",
+    fullPage: true,
+  });
+});

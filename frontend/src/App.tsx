@@ -59,7 +59,11 @@ import type {
   Transaction,
 } from "./types";
 
+import { Appearance, restoreUnlockedAppearance } from "./Appearance";
+import { MyPlan } from "./MyPlan";
+
 type Page =
+  | "My Plan"
   | "Overview"
   | "Purchase Shield"
   | "Financial Scan"
@@ -79,6 +83,7 @@ type Modal =
   | null;
 const navigation = [
   { name: "Overview", icon: LayoutDashboard },
+  { name: "My Plan", icon: Target },
   { name: "Purchase Shield", icon: ShieldCheck },
   { name: "Financial Scan", icon: ScanLine },
   { name: "Gambling Guard", icon: HeartHandshake },
@@ -185,6 +190,9 @@ export default function App() {
   const [confirmEvent, setConfirmEvent] = useState<string | null>(null);
   const actionLock = useRef(false);
   const modalRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (data?.profile.onboarded) void restoreUnlockedAppearance();
+  }, [data?.profile.onboarded]);
   const refresh = useCallback(async () => {
     const [d, g, t, p] = await Promise.all([
       api<Dashboard>("/dashboard"),
@@ -201,6 +209,20 @@ export default function App() {
   }, []);
   useEffect(() => {
     void refresh().catch((e) => setError(e.message));
+  }, [refresh]);
+  useEffect(() => {
+    const sync = () => {
+      if (!document.hidden)
+        void api<Dashboard>("/dashboard")
+          .then(setData)
+          .catch(() => {});
+    };
+    window.addEventListener("focus", sync);
+    const timer = window.setInterval(sync, 5000);
+    return () => {
+      window.removeEventListener("focus", sync);
+      window.clearInterval(timer);
+    };
   }, [refresh]);
   useEffect(() => {
     if (!data?.profile.ai_enabled) {
@@ -508,7 +530,9 @@ export default function App() {
                       ? "Turn your transaction history into a clearer next step."
                       : page === "Gambling Guard"
                         ? "A voluntary pause, built around the boundaries you choose."
-                        : "A record of what you spent and what you chose to protect."}
+                        : page === "My Plan"
+                          ? "Turn your pay into a plan, and build habits at your own pace."
+                          : "A record of what you spent and what you chose to protect."}
               </p>
             </div>
             {page === "Overview" ? (
@@ -1712,6 +1736,7 @@ export default function App() {
             </>
           )}
 
+          {page === "My Plan" && <MyPlan onChanged={refresh} />}
           {page === "Gambling Guard" && guard && (
             <>
               <div className="guard-layout">
@@ -1722,7 +1747,8 @@ export default function App() {
                   <h2>A boundary you choose.</h2>
                   <p>
                     Gambling Guard is optional. Set a weekly spending limit and
-                    create space to pause.
+                    create space to pause. Choose $0 if your plan is not to
+                    gamble.
                   </p>
                   <form
                     onSubmit={(e) => {
@@ -1751,7 +1777,7 @@ export default function App() {
                       <input
                         id="limit"
                         type="number"
-                        min="0.01"
+                        min="0"
                         step="0.01"
                         value={limit}
                         required
@@ -1818,7 +1844,11 @@ export default function App() {
                   <p>of the weekly limit you chose</p>
                   <Progress value={guard.percent ?? 0} />
                   <div className="limit-caption">
-                    <span>{guard.percent ?? 0}% used</span>
+                    <span>
+                      {guard.limit === 0
+                        ? "No gambling planned"
+                        : `${guard.percent ?? 0}% used`}
+                    </span>
                     <strong>{money(guard.remaining)} remaining</strong>
                   </div>
                   <form
@@ -2160,17 +2190,20 @@ export default function App() {
             <X size={20} />
           </button>
           {modal === "settings" && (
-            <ProfileSettings
-              data={data}
-              onSaved={async () => {
-                await refresh();
-                setModal(null);
-                setToast("Your settings are saved.");
-              }}
-              onBudget={() => setModal("budget")}
-              onGoal={() => setModal("goal")}
-              onRestore={() => setModal("restore")}
-            />
+            <>
+              <ProfileSettings
+                data={data}
+                onSaved={async () => {
+                  await refresh();
+                  setModal(null);
+                  setToast("Your settings are saved.");
+                }}
+                onBudget={() => setModal("budget")}
+                onGoal={() => setModal("goal")}
+                onRestore={() => setModal("restore")}
+              />
+              <Appearance />
+            </>
           )}
           {modal === "transaction" && (
             <TransactionEditor

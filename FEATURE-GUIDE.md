@@ -64,3 +64,39 @@ When deployed using HOSTING.md, visitors sign in with GitHub and records are sto
 ## Local scope
 
 This is a complete local, single-person USD workflow with one active goal. It has no bank connection, online sign-in, payment transfer, automatic cancellation, automatic retailer monitoring or background push notification service. Keep the server bound to localhost. All summaries depend on the completeness of your entries.
+
+## Pay schedules and milestones
+
+Open **My Plan**. Enter take-home pay per payment and choose weekly (52/year), every two weeks (26/year), twice a month (24/year), or monthly (12/year). Add monthly essentials and bills; your savings contribution comes from the goal settings. Save to see the annualized monthly average and the amount left for discretionary spending. Apply the suggested budget explicitly if it fits. This does not record income automatically: add actual paychecks as Income transactions.
+
+In the same page, name a daily-review challenge or keep the suggestion and choose 7, 14 or 30 check-ins. Review your spending, choose a practical next step, then tick both statements and record today's review. Separate calendar dates are required. Missed days never reset progress; check-ins cannot be reused across challenges. Each badge can be awarded once. Badges have no monetary value and do not certify savings, abstinence, or recovery. They are self-reported habit recognition, not treatment. The server supplies dates in hosted mode; a local computer's clock and files cannot be made tamper-proof.
+
+Salary settings are included in JSON backups. Habit milestones remain with the current account/installation when financial backups are restored and are not imported from uploaded files; back up the complete local data folder to preserve them when moving computers.
+
+Gambling Guard now accepts a **$0 weekly limit** for people who choose not to gamble. Support resources remain available without completing any challenge.
+
+
+## Achievement collection
+
+Open **My Plan > Achievements** to browse 20 badges, their exact requirements, review progress and earned dates. Filter to Earned or Not yet earned. Choose this challenge selects its focus and duration; review the form and press Start my challenge. One challenge can be active at a time. Earned badges remain as a history of past actions.
+
+- **Spending awareness:** review records and choose a helpful next step. Earn Steady start, Building habits and Thoughtful month at 7, 14 and 30 reviews respectively, in separate challenges.
+- **Practice the pause:** review spending, identify a trigger and write a calmer response for next time. Earn Pause planner, Intentional choices and Room to reflect at 7, 14 and 30 reviews. No purchase or gambling is needed.
+- **Know your budget:** review spending, compare remaining budget with upcoming needs, and choose an adjustment or confirm the plan is workable. Earn Budget navigator, Planning ahead and Confident planner at 7, 14 and 30 reviews.
+- **Lifetime practice:** First reflection (1 review), Making space (10), Growing perspective (25), Lasting practice (50). Reviews from all challenges count, including past reviews and ended challenges.
+- **Planning foundations:** Payday clarity for saving positive take-home pay; A plan in action for applying a pay-based budget when essentials and planned savings fit within positive expected pay. Existing users can save/apply their plan again to earn these.
+
+Challenge names are customizable; requirements and minimum durations are fixed. Daily review claims remain self-reported. One calendar date can count only once across challenges, and each badge is awarded once. Lifetime milestones intentionally count those same reviews cumulatively. There are no rankings, random prizes, streak resets or financial rewards. Achievements stay inside My Plan and never block financial tools or support resources.
+
+
+## SpendShield Live browser companion
+
+My Plan now includes extension pairing and voluntary Shield Mode settings. The five additional Live badges reward protected decisions, cheaper alternatives, elapsed waits and chosen safeguards. See LIVE-GUIDE.md for installation, every extension action, privacy and the isolated judge demonstration. Existing financial tools continue to work without the extension.
+
+
+## Color themes
+
+Open Settings and scroll to **Make it your space**. Choose Garden (mint/gold), Ocean (blue/sea glass), Iris (lilac/violet), or Sunset (peach/terracotta). The change appears immediately and is remembered on the current browser, separate from financial backups. All four are light themes with saturated goal cards and softly tinted dashboard cards. Reduced-motion preferences are respected.
+
+
+Three optional reward palettes unlock from the existing lifetime review achievements: **Bloom** at 1 daily review, **Aurora** at 10, and **Starlight** at 25. Record reviews in any My Plan challenge on separate dates; earlier reviews count and missed days do not reset progress. Settings shows locked palettes and progress. The corresponding achievement cards name their theme rewards. Four base themes remain freely available. Reward availability is checked against this profile’s achievements when restoring a saved reward theme; if the check is unavailable, Garden is used temporarily. Themes remain cosmetic and do not unlock financial tools.

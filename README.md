@@ -18,7 +18,7 @@ All amounts are USD. Reporting uses today's date and the transactions you record
 
 ![Personal setup](docs/onboarding.png)
 
-Full instructions: [Feature guide](FEATURE-GUIDE.md). For a presentation walkthrough: [Judging guide](JUDGING-GUIDE.md).
+Full instructions: [Feature guide](FEATURE-GUIDE.md). For extension setup and the isolated demo: [Live guide](LIVE-GUIDE.md).
 
 ## Features
 
@@ -42,8 +42,8 @@ Requires Python 3.11+ and Node.js 20.19+. The validated environment uses Python 
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements-lock.txt
 cd frontend
-pnpm install --frozen-lockfile
-pnpm run build
+npx pnpm@11 install --frozen-lockfile
+npx pnpm@11 run build
 cd ..
 .\.venv\Scripts\python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
@@ -92,7 +92,7 @@ Money is stored as integer cents. Decimal arithmetic controls ratios and roundin
 
 This release is for **one person using it locally on their own computer**. SQLite is stored in `data/spendshield.sqlite3` (override with `SPENDSHIELD_DB`). Settings provides JSON backup export and restoration with a preview, explicit replacement confirmation, and one-step Undo last restore recovery. Restoring an imported backup turns Gemini off until you opt in again.
 
-There is no online sign-in, multi-user isolation, bank connection, payment processing or automatic bank synchronization. Anyone able to access the running local app can see its profile. Keep the server bound to `127.0.0.1`; public service deployment requires a separate authentication, account isolation, hosting and operations implementation.
+Local mode has no sign-in: anyone able to access the running local app can see its profile. Keep it bound to `127.0.0.1`. Hosted authentication and account isolation are prepared separately; deployment and real provider sign-in still require configuration and verification described in HOSTING.md. Neither mode connects to banks or processes payments.
 
 Upgrading a former synthetic session preserves a snapshot under `settings.previous_sample_backup` in SQLite before starting personal setup. Normal launches never seed sample transactions. The synthetic developer reset endpoint is disabled unless explicitly enabled with `SPENDSHIELD_ENABLE_DEMO=1`; it is not part of the interface.
 
@@ -102,15 +102,24 @@ Upgrading a former synthetic session preserves a snapshot under `settings.previo
 .\.venv\Scripts\python -m pytest -q
 .\.venv\Scripts\python -m ruff check backend
 cd frontend
-pnpm run lint
-pnpm run build
-pnpm run test:e2e
+npx pnpm@11 run lint
+npx pnpm@11 run build
+npx pnpm@11 run test:e2e
 ```
 
 Browser tests run against a separate `data/e2e.sqlite3` database on port 8001, with Gemini disabled. They cover first setup, settings, entry/edit/persistence, planned-to-confirmed savings, import previews/deduplication and 320/390 px layouts. They never reset the personal database. Chrome is required for the configured browser channel.
 
 In this managed environment, use a fresh writable `--basetemp` under the workspace and `-p no:cacheprovider` if pytest's default temporary directory is inaccessible. The sandbox can block Playwright's process-tree teardown; an explicitly started isolated test server can be reused and stopped afterward.
 
-Latest verification (September 26, 2026): 52 backend tests and 11 browser journeys passed; Ruff, TypeScript, production build and ESLint passed. Live Gemini image understanding succeeded with gemini-3.1-flash-lite using a synthetic shopping image and synthetic context. Browser AI category review uses mocked responses; no personal financial records were used for live verification.
+Latest verification (September 26, 2026): 71 backend tests and 15 browser journeys passed; Ruff, TypeScript, production build and ESLint passed. Live Gemini image understanding succeeded with gemini-3.1-flash-lite using a synthetic shopping image and synthetic context. Browser AI category review uses mocked responses; no personal financial records were used for live verification.
 
 Hosted authentication tests additionally cover account isolation, session revocation, OAuth state/PKCE and replay prevention, request limits, upload limits, and fail-closed configuration. Provider sign-in uses a mocked identity response in automated tests; the real OAuth callback and Render deployment remain unverified until hosting is configured.
+
+**My Plan** adds weekly, fortnightly, twice-monthly and monthly take-home pay planning, an explicit suggested-budget action, and optional 7/14/30-day review milestones. See FEATURE-GUIDE.md for the self-reporting and backup boundaries.
+
+
+## SpendShield Live
+
+The optional Chrome extension brings your budget and goal to the moment of purchase, with page-level tradeoffs, protected decisions, verified alternative-price entry, and persistent purchase waits. It also brings your voluntary Gambling Guard and opt-in Shield Mode to detected betting pages. AI interprets limited page context when needed; the existing Python engine calculates financial consequences.
+
+See [LIVE-GUIDE.md](LIVE-GUIDE.md) for exact source and Windows-download commands, Chrome Load Unpacked installation, permissions, privacy, pairing, architecture, the three-minute $90 demo, changed files, tests and known limits. Build with `node extension/build.mjs`; load `extension/dist`. The public source and extension contain no configured Gemini key. The controlled demo runs in its own local database and requires no AI connection.
