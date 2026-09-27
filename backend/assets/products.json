@@ -1,8 +1,0 @@
-[
-  {"id":"stride-87","name":"Stride Everyday Runner","price":87,"category":"Shopping","keywords":["shoe","shoes","sneaker","runner","running"],"description":"A versatile everyday running shoe. Compare fit, support and returns before choosing.","merchant":"Demo footwear catalog"},
-  {"id":"renew-65","name":"Renewed running shoes","price":65,"category":"Shopping","keywords":["shoe","shoes","sneaker","runner","running"],"description":"A secondhand option. Check sole wear, condition and the seller's return policy.","merchant":"Demo resale catalog"},
-  {"id":"audio-59","name":"Everyday wireless headphones","price":59,"category":"Shopping","keywords":["headphones","earbuds","audio"],"description":"An entry-level option for calls and everyday listening.","merchant":"Demo electronics catalog"},
-  {"id":"bag-45","name":"Campus daypack","price":45,"category":"Shopping","keywords":["bag","backpack","daypack"],"description":"A simple laptop-ready daypack; compare dimensions and warranty.","merchant":"Demo essentials catalog"},
-  {"id":"meal-12","name":"Cook a meal at home","price":12,"category":"Restaurants","keywords":["dinner","meal","food","restaurant","takeout"],"description":"Illustrative ingredient budget for a simple meal using pantry staples.","merchant":"Demo meal catalog"},
-  {"id":"coffee-3","name":"Make coffee at home","price":3,"category":"Restaurants","keywords":["coffee","latte"],"description":"Illustrative per-serving cost. Actual costs depend on ingredients.","merchant":"Demo meal catalog"}
-]
